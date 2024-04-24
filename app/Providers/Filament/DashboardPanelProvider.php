@@ -28,11 +28,11 @@ class DashboardPanelProvider extends PanelProvider
       ->path('dashboard')
       ->login()
       ->colors([
-        'primary' => Color::Pink,
-        'success' => Color::Green,
-        'danger' => Color::Orange,
+        'primary' => Color::Blue,
+        'success' => Color::Emerald,
+        'danger' => Color::Red,
         'gray' => Color::Gray,
-        'info' => Color::Teal,
+        'info' => Color::Sky,
         'warning' => Color::Amber,
       ])
       ->font('Noto Sans')
