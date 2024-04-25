@@ -6,7 +6,7 @@ use Filament\Widgets\ChartWidget;
 
 class UsersChart extends ChartWidget
 {
-  protected static ?string $heading = 'Chart';
+  protected static ?string $heading = 'Users';
 
   protected function getData(): array
   {

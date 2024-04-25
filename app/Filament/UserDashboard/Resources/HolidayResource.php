@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\UserDashboard\Resources;
 
-use App\Filament\Resources\HolidayResource\Pages;
-use App\Filament\Resources\HolidayResource\RelationManagers;
+use App\Filament\UserDashboard\Resources\HolidayResource\Pages;
+use App\Filament\UserDashboard\Resources\HolidayResource\RelationManagers;
 use App\Models\Holiday;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -17,9 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class HolidayResource extends Resource
 {
   protected static ?string $model = Holiday::class;
-  protected static ?string $navigationGroup = 'Employee Management';
   protected static ?string $navigationIcon = 'far-calendar-days';
-  protected static ?int $navigationSort = 4;
 
   public static function form(Form $form): Form
   {
@@ -28,18 +26,6 @@ class HolidayResource extends Resource
         Forms\Components\Select::make('calendar_id')
           ->relationship(name: 'calendar', titleAttribute: 'name')
           ->required(),
-
-        Forms\Components\Select::make('user_id')
-          ->relationship(name: 'user', titleAttribute: 'name')
-          ->required(),
-        //->searchable(),
-
-        Forms\Components\Select::make('type')
-          ->options([
-            'declined' => 'Declined',
-            'approved' => 'Approved',
-            'pending' => 'Pending',
-          ]),
 
         Forms\Components\DatePicker::make('day')
           ->required(),
@@ -114,5 +100,15 @@ class HolidayResource extends Resource
       'create' => Pages\CreateHoliday::route('/create'),
       'edit' => Pages\EditHoliday::route('/{record}/edit'),
     ];
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    return parent::getEloquentQuery()->where('user_id', auth()->id());
+  }
+
+  protected function getRedirectUrl(): string
+  {
+    return $this->getResource()::getUrl('index');
   }
 }

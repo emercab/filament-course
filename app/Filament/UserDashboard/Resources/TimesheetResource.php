@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\UserDashboard\Resources;
 
-use App\Filament\Resources\HolidayResource\Pages;
-use App\Filament\Resources\HolidayResource\RelationManagers;
-use App\Models\Holiday;
+use App\Filament\UserDashboard\Resources\TimesheetResource\Pages;
+use App\Filament\UserDashboard\Resources\TimesheetResource\RelationManagers;
+use App\Models\Timesheet;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -14,12 +14,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class HolidayResource extends Resource
+class TimesheetResource extends Resource
 {
-  protected static ?string $model = Holiday::class;
-  protected static ?string $navigationGroup = 'Employee Management';
-  protected static ?string $navigationIcon = 'far-calendar-days';
-  protected static ?int $navigationSort = 4;
+  protected static ?string $model = Timesheet::class;
+  protected static ?string $navigationIcon = 'fas-clock';
 
   public static function form(Form $form): Form
   {
@@ -29,19 +27,16 @@ class HolidayResource extends Resource
           ->relationship(name: 'calendar', titleAttribute: 'name')
           ->required(),
 
-        Forms\Components\Select::make('user_id')
-          ->relationship(name: 'user', titleAttribute: 'name')
-          ->required(),
-        //->searchable(),
-
         Forms\Components\Select::make('type')
           ->options([
-            'declined' => 'Declined',
-            'approved' => 'Approved',
-            'pending' => 'Pending',
+            'work' => 'Working',
+            'pause' => 'In Pause',
           ]),
 
-        Forms\Components\DatePicker::make('day')
+        Forms\Components\DateTimePicker::make('day_in')
+          ->required(),
+
+        Forms\Components\DateTimePicker::make('day_out')
           ->required(),
       ]);
   }
@@ -51,24 +46,29 @@ class HolidayResource extends Resource
     return $table
       ->columns([
         Tables\Columns\TextColumn::make('calendar.name')
-          ->numeric()
-          ->sortable(),
+          ->sortable()
+          ->searchable(),
 
         Tables\Columns\TextColumn::make('user.name')
-          ->numeric()
-          ->sortable(),
-
-        Tables\Columns\TextColumn::make('day')
-          ->date()
-          ->sortable(),
+          ->sortable()
+          ->searchable(),
 
         Tables\Columns\TextColumn::make('type')
           ->badge()
           ->color(fn (string $state): string => match ($state) {
-            'approved' => 'success',
-            'pending' => 'warning',
-            'declined' => 'danger',
+            'work' => 'success',
+            'pause' => 'warning',
           })
+          ->searchable(),
+
+        Tables\Columns\TextColumn::make('day_in')
+          ->dateTime()
+          ->sortable()
+          ->searchable(),
+
+        Tables\Columns\TextColumn::make('day_out')
+          ->dateTime()
+          ->sortable()
           ->searchable(),
 
         Tables\Columns\TextColumn::make('created_at')
@@ -84,9 +84,8 @@ class HolidayResource extends Resource
       ->filters([
         SelectFilter::make('type')
           ->options([
-            'declined' => 'Declined',
-            'approved' => 'Approved',
-            'pending' => 'Pending',
+            'work' => 'Working',
+            'pause' => 'In Pause',
           ])
       ])
       ->actions([
@@ -110,9 +109,14 @@ class HolidayResource extends Resource
   public static function getPages(): array
   {
     return [
-      'index' => Pages\ListHolidays::route('/'),
-      'create' => Pages\CreateHoliday::route('/create'),
-      'edit' => Pages\EditHoliday::route('/{record}/edit'),
+      'index' => Pages\ListTimesheets::route('/'),
+      'create' => Pages\CreateTimesheet::route('/create'),
+      'edit' => Pages\EditTimesheet::route('/{record}/edit'),
     ];
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    return parent::getEloquentQuery()->where('user_id', auth()->id());
   }
 }
