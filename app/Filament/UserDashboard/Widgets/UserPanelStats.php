@@ -45,7 +45,8 @@ class UserPanelStats extends BaseWidget
     // Convert the total work to hours and minutes
     $hours = floor($total_work / 3600);
     $minutes = floor($total_work / 60) - ($hours * 60);
+    $seconds = $total_work - ($minutes * 60) - ($hours * 3600);
 
-    return "$hours:$minutes";
+    return "$hours:$minutes:$seconds";
   }
 }
