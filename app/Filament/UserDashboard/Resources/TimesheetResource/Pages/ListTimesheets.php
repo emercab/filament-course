@@ -15,11 +15,32 @@ class ListTimesheets extends ListRecords
 
   protected function getHeaderActions(): array
   {
+    $lastTimesheet = $this->getLastTimesheet();
+
+    if ($lastTimesheet == null) {
+      return [
+        Action::make('start_work')
+          ->label('Enter Work')
+          ->icon('far-calendar-plus')
+          ->color('success')
+          //->visible(!$lastTimesheet->day_out == null)
+          //->disabled($lastTimesheet->day_out == null)
+          ->requiresConfirmation()
+          ->action('start_work'),
+
+        Actions\CreateAction::make()
+          ->icon('far-square-plus')
+          ->color('info'),
+      ];
+    }
+
     return [
       Action::make('start_work')
         ->label('Enter Work')
         ->icon('far-calendar-plus')
         ->color('success')
+        //->visible(!$lastTimesheet->day_out == null)
+        //->disabled($lastTimesheet->day_out == null)
         ->requiresConfirmation()
         ->action('start_work'),
 
@@ -28,6 +49,8 @@ class ListTimesheets extends ListRecords
         ->icon('far-circle-stop')
         ->color('danger')
         ->requiresConfirmation()
+        //->visible($lastTimesheet->day_out == null && $lastTimesheet->type == 'pause')
+        //->disabled(!$lastTimesheet->day_out == null)
         ->action('stop_work'),
 
       Action::make('start_pause')
@@ -35,19 +58,22 @@ class ListTimesheets extends ListRecords
         ->icon('far-calendar-minus')
         ->color('warning')
         ->requiresConfirmation()
+        //->visible($lastTimesheet->day_out == null && $lastTimesheet->type == 'pause')
+        //->disabled(!$lastTimesheet->day_out == null)
         ->action('start_pause'),
 
-        Action::make('stop_pause')
+      Action::make('stop_pause')
         ->label('Stop Pause')
         ->icon('far-circle-stop')
         ->color('danger')
         ->requiresConfirmation()
+        //->visible($lastTimesheet->day_out == null && $lastTimesheet->type == 'pause')
+        //->disabled(!$lastTimesheet->day_out == null && $lastTimesheet->type == 'pause')
         ->action('stop_pause'),
 
       Actions\CreateAction::make()
         ->icon('far-square-plus')
         ->color('info'),
-
     ];
   }
 
@@ -104,9 +130,18 @@ class ListTimesheets extends ListRecords
     $lastTimesheet->update([
       'day_out' => Carbon::now(),
     ]);
+
+    // Create a new timesheet record
+    $timesheet = Timesheet::create([
+      'user_id' => auth()->user()->id,
+      'calendar_id' => 1,
+      'type' => 'work',
+      'day_in' => Carbon::now(),
+      'day_out' => null,
+    ]);
   }
 
-  private function getLastTimesheet(): Timesheet
+  private function getLastTimesheet(): Timesheet | null
   {
     $user = auth()->user();
     return Timesheet::where('user_id', $user->id)

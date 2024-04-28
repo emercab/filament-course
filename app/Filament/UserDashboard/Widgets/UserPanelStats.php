@@ -47,6 +47,6 @@ class UserPanelStats extends BaseWidget
     $minutes = floor($total_work / 60) - ($hours * 60);
     $seconds = $total_work - ($minutes * 60) - ($hours * 3600);
 
-    return "$hours:$minutes:$seconds";
+    return sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
   }
 }

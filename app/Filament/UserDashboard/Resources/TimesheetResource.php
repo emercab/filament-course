@@ -5,6 +5,7 @@ namespace App\Filament\UserDashboard\Resources;
 use App\Filament\UserDashboard\Resources\TimesheetResource\Pages;
 use App\Filament\UserDashboard\Resources\TimesheetResource\RelationManagers;
 use App\Models\Timesheet;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -62,12 +63,12 @@ class TimesheetResource extends Resource
           ->searchable(),
 
         Tables\Columns\TextColumn::make('day_in')
-          ->dateTime()
+          ->dateTime('d/M/y - h:i a')
           ->sortable()
           ->searchable(),
 
         Tables\Columns\TextColumn::make('day_out')
-          ->dateTime()
+          ->dateTime('d/M/y - h:i a')
           ->sortable()
           ->searchable(),
 
