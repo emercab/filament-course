@@ -7,6 +7,7 @@ use App\Models\Timesheet;
 use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 
 class ListTimesheets extends ListRecords
@@ -88,6 +89,9 @@ class ListTimesheets extends ListRecords
       'day_in' => Carbon::now(),
       'day_out' => null,
     ]);
+
+    $this->sendNotification('You have started working.');
+    
   }
 
   public function start_pause(): void
@@ -147,5 +151,13 @@ class ListTimesheets extends ListRecords
     return Timesheet::where('user_id', $user->id)
       ->orderBy('id', 'desc')
       ->first();
+  }
+
+  private function sendNotification(string $message): void
+  {
+    Notification::make()
+      ->title($message)
+      ->success()
+      ->send();
   }
 }

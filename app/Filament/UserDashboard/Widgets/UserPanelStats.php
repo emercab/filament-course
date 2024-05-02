@@ -15,7 +15,8 @@ class UserPanelStats extends BaseWidget
     return [
       Stat::make('Pending Holidays', $this->getHolidays('pending')),
       Stat::make('Approved Holidays', $this->getHolidays('approved')),
-      Stat::make('Total Work', $this->getTotalWork()),
+      Stat::make('Total Work', $this->getTotalTime('work')),
+      Stat::make('Total Pause', $this->getTotalTime('pause')),
     ];
   }
 
@@ -26,10 +27,10 @@ class UserPanelStats extends BaseWidget
       ->count();
   }
 
-  private function getTotalWork(): string
+  private function getTotalTime(string $type): string
   {
     $timesheets = Timesheet::where('user_id', auth()->id())
-      ->where('type', 'work')
+      ->where('type', $type)
       ->get();
 
     // Iterate over each timesheet and calculate the total work
